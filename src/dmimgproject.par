@@ -1,0 +1,6 @@
+infile,f,a,"",,,"Input image file name"
+outfile,f,a,"",,,"Output file name"
+axis,s,a,"y",x|y,,"Axis to project along"
+verbose,i,h,0,0,0,"Tool verbosity"
+clobber,b,h,no,,,"Clobber existing output?"
+mode,s,h,"ql",,,

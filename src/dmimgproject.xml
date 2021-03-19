@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE cxchelptopics SYSTEM "CXCHelp.dtd">
+<cxchelptopics>
+<ENTRY context="tools" key="dmimgproject" refkeywords="dm image images project axis profile" seealsogroups="dmimgtools">
+<SYNOPSIS>
+
+	Project image along axis
+   
+</SYNOPSIS>
+<SYNTAX>
+<LINE>
+
+        dmimgproject infile outfile axis [clobber] [verbose]
+      
+</LINE>
+
+</SYNTAX>
+<DESC>
+<PARA>
+
+	'dmimgproject' projects data along one of the image axes. 
+	The sum of the pixels along either axis are output as is the
+	area and normalized integral.
+      
+</PARA>
+<PARA>
+
+        Image pixels that fall outside and region subspace are
+        exlcuded as are any NaN or integer NULL values.  The input
+        image may be any data-type, but must be 2 dimensions.
+      
+</PARA>
+
+</DESC>
+<QEXAMPLELIST>
+<QEXAMPLE>
+<SYNTAX>
+<LINE>
+
+	dmimgproject infile=img.fits outfile=project.fits axis=x
+     
+</LINE>
+
+</SYNTAX>
+<DESC>
+<PARA>
+
+     Project the data to the X-axis.  The output file will contain a
+     table of the X-axis column (grid) and the SUM_y(pixels@X_i).
+     
+</PARA>
+
+</DESC>
+
+</QEXAMPLE>
+
+<QEXAMPLE>
+<SYNTAX>
+<LINE>
+
+	dmimgproject infile="exposure.fits[sky=circle(4096,4096,100)][opt full]" 
+	   outfile=project.fits axis=y
+     
+</LINE>
+
+</SYNTAX>
+<DESC>
+<PARA>
+
+     Project the exposure image onto the Y-axis.  Pixels outside the 
+     circle are not included in the integral.  The area column give
+     the number of pixels included in the sum and the NORM column
+     gives the normalized area. 
+</PARA>
+<PARA>
+
+     See <HREF link="https://cxc.harvard.edu/ciao/ahelp/dmopt.html">"ahelp dmopt"</HREF> for a full explination of the 'opt' directive.
+     
+</PARA>
+
+</DESC>
+
+</QEXAMPLE>
+
+
+
+</QEXAMPLELIST>
+<PARAMLIST>
+<PARAM filetype="input" name="infile" reqd="yes" type="file">
+<SYNOPSIS>
+
+	The input image.
+    
+</SYNOPSIS>
+<DESC>
+<PARA>
+
+  The input 2D image.  
+      
+</PARA>
+
+</DESC>
+
+</PARAM>
+<PARAM filetype="output" name="outfile" reqd="yes" type="file">
+<SYNOPSIS>
+
+	The output file name
+    
+</SYNOPSIS>
+<DESC>
+<PARA>
+   The output file containing the projected data along the given axis.      
+</PARA>
+
+</DESC>
+
+</PARAM>
+<PARAM def="x" min="x|y" name="axis" reqd="yes" type="string">
+<SYNOPSIS>
+
+   Which data to project the data onto.
+    
+</SYNOPSIS>
+<DESC>
+<PARA>
+
+  The data can be projected onto either the X or Y axis.  For a 256(x)
+  by 512(y) image, with axis=x, there will be values for each X axis
+  value (256 of them) with the integral of the Y values in the
+  column.  For axis=y, there will be 1 value for each row (512 of
+  them) with the integral along the X-axis.
+
+</PARA>
+</DESC>
+
+</PARAM>
+<PARAM def="no" name="clobber" type="boolean">
+<SYNOPSIS>
+
+	Remove output if it exists?
+    
+</SYNOPSIS>
+<DESC>
+<PARA>
+
+	Used to specify whether or not to clobber existing file that
+	has the same name as the specified output file
+         
+</PARA>
+
+</DESC>
+
+</PARAM>
+<PARAM def="0" max="5" min="0" name="verbose" type="integer">
+<SYNOPSIS>
+
+	The tool chatter level
+    
+</SYNOPSIS>
+<DESC>
+<PARA>
+
+	Verbose can be from 0 to 5, generating different amounts
+        of debugging output.
+         
+</PARA>
+
+</DESC>
+
+</PARAM>
+</PARAMLIST>
+<BUGS><PARA>
+	See the
+        <HREF link="https://cxc.harvard.edu/ciao/bugs/dmimgproject.html">bugs page
+	for this tool</HREF>
+        on the CIAO website for an up-to-date listing of known bugs.
+      </PARA></BUGS>
+<LASTMODIFIED>December 2013</LASTMODIFIED>
+
+</ENTRY>
+
+</cxchelptopics>
