@@ -1,0 +1,6 @@
+Makefile
+*/Makefile
+config.log
+config.status
+wrapper/dmimgproject
+src/.deps
