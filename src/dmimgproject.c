@@ -26,7 +26,7 @@
 #include <float.h>
 #include <cxcregion.h>
 
-#include <dmimgfilt.h>
+#include <dmfilters.h>
 
 typedef enum { PROJ_X=0, PROJ_Y=1 } Projection_Type;
 
