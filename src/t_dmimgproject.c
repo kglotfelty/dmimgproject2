@@ -18,53 +18,12 @@
 /*  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.             */
 /*                                                                          */
 
-/***********************************************************************/
-/*     Copyrights:                                                      */
-/*                                                                      */
-/*     Copyright (c) 2001 Smithsonian Astrophysical Observatory         */
-/*                                                                      */
-/*     Permission to use, copy, modify, distribute, and  sell  this     */
-/*     software  and  its  documentation  for any purpose is hereby     */
-/*     granted without  fee,  provided  that  the  above  copyright     */
-/*     notice  appear  in  all  copies and that both that copyright     */
-/*     notice and this permission notice appear in supporting docu-     */
-/*     mentation,  and  that  the  name  of the  Smithsonian Astro-     */
-/*     physical Observatory not be used in advertising or publicity     */
-/*     pertaining to distribution of the software without specific,     */
-/*     written  prior  permission.   The Smithsonian  Astrophysical     */
-/*     Observatory makes no representations about  the  suitability     */
-/*     of  this  software for any purpose.  It is provided  "as is"     */
-/*     without express or implied warranty.                             */
-/*     THE  SMITHSONIAN  ASTROPHYSICAL  OBSERVATORY  DISCLAIMS  ALL     */
-/*     WARRANTIES  WITH  REGARD  TO  THIS  SOFTWARE,  INCLUDING ALL     */
-/*     IMPLIED  WARRANTIES  OF  MERCHANTABILITY AND FITNESS, IN  NO     */
-/*     EVENT SHALL THE  SMITHSONIAN  ASTROPHYSICAL  OBSERVATORY  BE     */
-/*     LIABLE FOR  ANY SPECIAL, INDIRECT  OR  CONSEQUENTIAL DAMAGES     */
-/*     OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS  OF USE,  DATA     */
-/*     OR  PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR     */
-/*     OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION  WITH     */
-/*     THE  USE OR PERFORMANCE OF THIS SOFTWARE.                        */
-/*                                                                      */
-/************************************************************************/
- 
-/* H*****************************************************************
- *
- * FILE NAME: t_dmimgproject.c
- *
- * DEVELOPMENT: tools
- *
- * DESCRIPTION:
- *
- * IRAF wrapper for dmimgproject tool
- *  
- *
- *
-H***************************************************************** */
-
 #include "dslib.h"
 
+extern int dmimgproject();
 
-void main(int argc, char** argv)
+
+int main(int argc, char** argv)
 {
     int fail_status = 0; 
 
