@@ -18,12 +18,12 @@
 /*  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.             */
 /*                                                                          */
 
+#include <math.h>
+#include <float.h>
 
 #include <dslib.h>
 #include <dsnan.h>
 #include <histlib.h>
-#include <math.h>
-#include <float.h>
 #include <cxcregion.h>
 
 #include <dmfilters.h>
@@ -42,31 +42,37 @@ typedef struct {
 } Image;
 
 typedef struct {
-    char name[30];
-    double *values;    
+    char name[30];     // Name of stat, also used for column name
+    double *values;    // Output values per bin
 } Stat;
 
-
 typedef struct {
-    double x_min;
-    double x_max;
-    double binsize;
+    double x_min;       // min x in rotated frame
+    double x_max;       // max x in rotated frame
+    double binsize;     // binsize
 
-    double cos_angle;
-    double sin_angle;
+    double cos_angle;   // Save cos(angle) to only compute once
+    double sin_angle;   // ditto for sin(angle)
 
-    long num_bins;
-    long *buflen;
-    double **buffers;
+    long num_bins;      // number of bins
+    long *buflen;       // length of each buffer per bin
+    double **buffers;   // buffer to hold pixel values in each bin
 
-    double *xmid;
-    double *ymid;
-    
+    double *xmid;       // x coordinate in rotated frame
+    double *ymid;       // y coordinate in rotated frame    
 } Grid;
 
+typedef struct {
+    char infile[DS_SZ_PATHNAME]; // Input file name
+    char outfile[DS_SZ_PATHNAME]; // ooutput file name
+    double rotang;      // rotation angle
+    double binsize;     // bin size
+    short verbose;      // chatter level
+    short clobber;      // rm outptu file if it exists?
+} Parameters;
 
-
-
+// ------------------------
+// Function prototypes
 
 Image* load_infile(char *infile);
 int dmimgproject();
@@ -80,9 +86,12 @@ int write_output(char *outfile, Image *image, Grid *grid, Stat *stats);
 int get_coordinates(Image *image, Grid *grid);
 
 
+// ----------------------
+// Functions
 
-
-Image* load_infile(char *infile){
+Image* load_infile(char *infile)
+{
+    // Load image
 
     Image *image;
     if (NULL == (image = calloc(1,sizeof(Image)))) {
@@ -94,7 +103,6 @@ Image* load_infile(char *infile){
         err_msg("ERROR: Cannot load infile '%s'\n",infile);
         return(NULL);
     }
-
 
     // dmimgio
     regRegion *dss = NULL;
@@ -139,42 +147,39 @@ int convert_coords( Image *image, double x_in, double y_in,
     *y_out = physical[1];
 
     return(0);
-    
 }
-
 
 
 Grid *get_output_grid(Image *image, double rotang, double binsize)
 {
+    // Compute the grid in the rotated frame
+    
     Grid *grid;
     if (NULL == (grid = calloc(1, sizeof(Grid)))) {
         err_msg("ERROR: Problem allocating memory");
         return(NULL);
     }
 
-    grid->x_min = DBL_MAX;
-    grid->x_max = -DBL_MAX;
-
     grid->cos_angle = cos(rotang*3.141592/180.0);
     grid->sin_angle = sin(rotang*3.141592/180.0);
+    grid->binsize = binsize;
 
-    printf("cos %g\n",grid->cos_angle);
-    printf("sin %g\n",grid->sin_angle);
-
+    grid->x_min = DBL_MAX;
+    grid->x_max = -DBL_MAX;
     
-    int ii;
     double x_corners[4] = {0,0,image->lAxes[0]-1,image->lAxes[0]-1};
     double y_corners[4] = {0,image->lAxes[1]-1,image->lAxes[1]-1,0};
     
+    int ii;
     for (ii=0;ii<4;ii++) {
         double xx,yy;
 
         xx = x_corners[ii];
         yy = y_corners[ii];
         
-        double rotx; //, roty;        
+        // I only need to know the X coord in rotated coord system
+        double rotx;
         rotx =  xx * grid->cos_angle + yy * grid->sin_angle;
-        // roty = -xx * grid->sin_angle + yy * grid->cos_angle + y0;
 
         if (rotx < grid->x_min) {
             grid->x_min = rotx;
@@ -183,15 +188,9 @@ Grid *get_output_grid(Image *image, double rotang, double binsize)
             grid->x_max = rotx;
         }
 
-        printf("lo = %g\n", grid->x_min);
-        printf("hi = %g\n", grid->x_max);
-    }   
+    }   // end for ii
 
-    long grid_len = floor((grid->x_max - grid->x_min)/binsize)+1;
-    printf("%ld\n",grid_len);
-
-    grid->binsize = binsize;
-    grid->num_bins = grid_len;
+    grid->num_bins = floor((grid->x_max - grid->x_min)/binsize)+1;
         
     return(grid);
 }
@@ -199,12 +198,24 @@ Grid *get_output_grid(Image *image, double rotang, double binsize)
 
 int setup_buffers(Image *image, Grid *grid)
 {
+    // Setup buffers for each of the grid bins
+    
+    if (NULL == (grid->buflen = calloc(grid->num_bins, sizeof(long)))) {
+        err_msg("ERROR: problem allocating memory");
+        return(1);
+    }
 
-    grid->buflen = calloc(grid->num_bins, sizeof(long));
-    grid->buffers = calloc(grid->num_bins, sizeof(double*));
+    if (NULL == (grid->buffers = calloc(grid->num_bins, sizeof(double*)))) {
+        err_msg("ERROR: problem allocating memory");
+        return(1);        
+    }
     
-    int ii, jj;
     
+    // Loop through image to figure out which grid bin each
+    // pixel belongs to.  Allocate buffers to match number of 
+    // pixels per bin.
+    
+    int ii, jj;    
     for (jj=image->lAxes[1];jj--;) {
         double yterm = jj * grid->sin_angle;
         for (ii=image->lAxes[0];ii--;) {
@@ -215,33 +226,33 @@ int setup_buffers(Image *image, Grid *grid)
                 continue;   // Skip pixel
             }
 
-            double rotx; //, roty;        
+            double rotx; 
             rotx =  ii * grid->cos_angle + yterm;
 
             long grid_bin;
             grid_bin = floor((rotx - grid->x_min)/grid->binsize);  
             
             if (grid_bin < 0) {
-                printf("I messed up somewehre\n");
+                err_msg("I messed up somewhere\n");
                 return(1);
             }
 
             if (grid_bin >= grid->num_bins) {
-                printf("I messed up somewehre\n");
+                err_msg("I messed up somewhere else\n");
                 return(1);                
             }
 
+            // calloc -> init to 0
             grid->buflen[grid_bin] += 1;
             
         } // end for ii
     } // end for jj
 
+
     int kk;
     for (kk=0;kk<grid->num_bins;kk++) {
         grid->buffers[kk] = calloc(grid->buflen[kk],sizeof(double));
     }
-
-    fill_buffers(image,grid);
     
     return(0);
 }
@@ -249,13 +260,21 @@ int setup_buffers(Image *image, Grid *grid)
 
 int get_coordinates(Image *image, Grid *grid)
 {
-    grid->xmid = calloc(grid->num_bins,sizeof(double));
-    grid->ymid = calloc(grid->num_bins,sizeof(double));
+    // Get coordinates of rotated x-axis.
+    if (NULL == (grid->xmid = calloc(grid->num_bins,sizeof(double)))) {
+        err_msg("ERROR: problem allocating memory");
+        return(1);
+    } 
+    if (NULL == (grid->ymid = calloc(grid->num_bins,sizeof(double)))) {
+        err_msg("ERROR: problem allocating memory");
+        return(1);
+    }
     
-
     int kk;
     for (kk=0;kk<grid->num_bins;kk++) {
-        double xx = grid->x_min + (kk+0.5)*grid->binsize;
+        // The idea is to rotate and then project onto the X-axis
+        // So in the rotated system we want coords for y=0.
+        double xx = grid->x_min + kk*grid->binsize;
         double yy = 0;
         
         double rotx, roty;
@@ -268,7 +287,7 @@ int get_coordinates(Image *image, Grid *grid)
         convert_coords(image, rotx, roty, &px, &py);
         grid->xmid[kk] = px;
         grid->ymid[kk] = py;
-    }
+    } // end for kk
 
     return(0);    
 }
@@ -276,8 +295,13 @@ int get_coordinates(Image *image, Grid *grid)
 
 int fill_buffers(Image *image, Grid *grid) 
 {
+    // Fill each grid's buffer with pixel values from image
 
-    long *buffer_at = calloc(grid->num_bins,sizeof(long));
+    long *buffer_at;    
+    if (NULL == (buffer_at = calloc(grid->num_bins,sizeof(long)))) {
+        err_msg("ERROR: problem allocating memory");
+        return(1);        
+    }
 
     int ii, jj;    
     for (jj=image->lAxes[1];jj--;) {
@@ -290,7 +314,7 @@ int fill_buffers(Image *image, Grid *grid)
                 continue;   // Skip pixel
             }
 
-            double rotx; //, roty;        
+            double rotx; 
             rotx =  ii * grid->cos_angle + yterm;
 
             long grid_bin;
@@ -305,59 +329,62 @@ int fill_buffers(Image *image, Grid *grid)
 
     free(buffer_at);
 
-    return(0);
-    
+    return(0);    
 }
 
 
 Stat *compute_stats(Grid *grid)
 {
-    Stat *stats = NULL;
-    
+    // Compute array of statistics for each grid
 
+    
     char *list_of_stats[] = { "min", "max", "mean", "count", "sum", "median", "mode", "mid", 
                               "sigma", "extreme", "range", "q25", "q33", 
                               "q67", "q75", "olympic", NULL };
-    char *stat_name;
-    int ii, num_stats;
-    
-    num_stats=0;
+
+    // Count the number of statistcs
+    int num_stats = 0; 
     while(list_of_stats[++num_stats]) {};
     
-    stats = calloc(num_stats+1,sizeof(Stat));  // +1 so has NULL to terminate list
+    // +1 so has NULL to terminate list
+    Stat *stats = NULL;
+    if (NULL == (stats = calloc(num_stats+1,sizeof(Stat)))) {
+        err_msg("ERROR: Problem allocating memory");
+        return(NULL);
+    }
+
     
+    int ii;
     for (ii=0;ii<num_stats;ii++) {
+        // dmfilter.h
         double (*func)( double *vals, long nvals ) = NULL;
-        double val;
-
-
         if (NULL == (func = get_method(list_of_stats[ii]))) {
             err_msg("ERROR: Unknown filter %s", list_of_stats[ii]);
             return(NULL);
         }
 
-        printf("Working on stat %s\n", list_of_stats[ii]);
         strcpy( stats[ii].name, list_of_stats[ii]);
-        stats[ii].values = calloc(grid->num_bins,sizeof(double));
+        if (NULL == (stats[ii].values = calloc(grid->num_bins,sizeof(double)))) {
+            err_msg("ERROR: problem allocating memory");
+            return(NULL);
+        }
 
         int gg;
         for (gg=0;gg<grid->num_bins;gg++) {
-            double val;
-            
+            double val;            
             val = func(grid->buffers[gg], grid->buflen[gg]);
-            stats[ii].values[gg] = val;
-            
+            stats[ii].values[gg] = val;            
         } // end for gg
         
     } // end for ii
     
     
     return(stats);
-    
 }
 
 int write_output(char *outfile, Image *image, Grid *grid, Stat *stats) 
 {
+    // Write output results to table
 
     dmBlock *outBlock;
     if (NULL == (outBlock = dmTableCreate( outfile ) )) {
@@ -375,6 +402,12 @@ int write_output(char *outfile, Image *image, Grid *grid, Stat *stats)
     putHdr( outBlock, hdrDM_FILE, hdr, BASIC_STS, "dmimgproject" );
     put_param_hist_info(outBlock, "dmimgproject", NULL, 0);
 
+    if (dmBlockGetNo(outBlock) != 1) {
+        dmBlock *primary = dmDatasetMoveToBlock(dmBlockGetDataset(outBlock), 1);
+        putHdr(primary, hdrDM_FILE, hdr, PRIMARY_STS, "dmimgproject");
+    }
+
+    // Write data
     dmDescriptor *col;
     col = dmColumnCreate(outBlock, "X", dmDOUBLE, 0, "pix", "X coordinate ish");
     dmSetScalars_d(col, grid->xmid, 1, grid->num_bins);
@@ -383,8 +416,7 @@ int write_output(char *outfile, Image *image, Grid *grid, Stat *stats)
     dmSetScalars_d(col, grid->ymid, 1, grid->num_bins);
 
     int ii = 0;
-    while (strlen(stats[ii].name)) {
-        
+    while (strlen(stats[ii].name)) {        
         col = dmColumnCreate(outBlock, stats[ii].name, dmDOUBLE, 0, units, stats[ii].name );
         dmSetScalars_d(col, stats[ii].values, 1, grid->num_bins);
         ii++;
@@ -392,49 +424,58 @@ int write_output(char *outfile, Image *image, Grid *grid, Stat *stats)
 
     dmTableClose(outBlock);
 
-    
     return(0);
+}
+
+Parameters *get_parameters()
+{
+    Parameters *pars;
+    
+    if (NULL == (pars = calloc(1,sizeof(Parameters)))) {
+        err_msg("ERROR: problem allocating memory");
+        return(NULL);
+    }
+
+    clgetstr("infile", pars->infile, DS_SZ_PATHNAME);
+    clgetstr("outfile", pars->outfile, DS_SZ_PATHNAME);
+    pars->rotang = clgetd("angle");
+    pars->binsize = clgetd("binsize");
+    pars->verbose = clgeti("verbose");
+    pars->clobber = clgetb("clobber");
+
+    if (pars->verbose >= 1){
+        printf("dmimgproject\n");
+        printf("%15s = %-s\n", "infile", pars->infile);        
+        printf("%15s = %-s\n", "outfile", pars->outfile);        
+        printf("%15s = %g\n", "angle", pars->rotang);        
+        printf("%15s = %g\n", "binsize", pars->binsize);        
+        printf("%15s = %d\n", "verbose", pars->verbose);        
+        printf("%15s = %-s\n", "clobber", pars->clobber ? "yes" : "no");                
+    }
+    
+    return(pars);
 }
 
 
 int dmimgproject()
 {
-    char infile[DS_SZ_PATHNAME];
-    char outfile[DS_SZ_PATHNAME];
-    double rotang;
-    double binsize;
-    short verbose;
-    short clobber;
-    
-    clgetstr("infile", infile, DS_SZ_PATHNAME);
-    clgetstr("outfile", outfile, DS_SZ_PATHNAME);
-    rotang = clgetd("angle");
-    binsize = clgetd("binsize");
-    verbose = clgeti("verbose");
-    clobber = clgetb("clobber");
-
-    if (verbose >= 1){
-        printf("dmimgproject\n");
-        printf("%15s = %-s\n", "infile", infile);        
-        printf("%15s = %-s\n", "outfile", outfile);        
-        printf("%15s = %g\n", "angle", rotang);        
-        printf("%15s = %g\n", "binsize", binsize);        
-        printf("%15s = %d\n", "verbose", verbose);        
-        printf("%15s = %-s\n", "clobber", clobber ? "yes" : "no");                
+    Parameters *pars;
+    if (NULL == (pars = get_parameters())) {
+        return(-9);
     }
-
+    
 
     Image *image;    
-    if (NULL == (image = load_infile(infile))) {
+    if (NULL == (image = load_infile(pars->infile))) {
         return(-1);
     }
 
-    if ( ds_clobber(outfile, clobber, NULL ) != 0 ) {
+    if ( ds_clobber(pars->outfile, pars->clobber, NULL ) != 0 ) {
         return(-2);
     }
 
     Grid *grid;
-    if (NULL == (grid = get_output_grid(image, rotang, binsize))) {
+    if (NULL == (grid = get_output_grid(image, pars->rotang, pars->binsize))) {
         return(-3);
     }
 
@@ -442,14 +483,20 @@ int dmimgproject()
         return(-5);
     }
 
+    if (0 != fill_buffers(image,grid)) {
+        return(-7);
+    }
+
     Stat *stats;
     if (NULL == (stats = compute_stats(grid))) {
         return(-4);
     }
 
-    get_coordinates(image, grid);
+    if (0 != get_coordinates(image, grid)) {
+        return(-8);
+    }
 
-    if (0 != write_output(outfile, image, grid, stats)) {
+    if (0 != write_output(pars->outfile, image, grid, stats)) {
         return(-6);
     }
 
