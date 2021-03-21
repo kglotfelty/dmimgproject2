@@ -20,14 +20,14 @@
 
 #include "dslib.h"
 
-extern int dmimgproject();
+extern int dmimgproject2();
 
 
 int main(int argc, char** argv)
 {
     int fail_status = 0; 
 
-    dsErrInitLib(dsPTGRPERR, "dmimgproject");
+    dsErrInitLib(dsPTGRPERR, "dmimgproject2");
 
     /* INIT THE IRAF ENVIRONMENT */
     /* IRAFHOST_INIT;		*/
@@ -42,7 +42,7 @@ int main(int argc, char** argv)
     else
     {    
        /* EXECUTE OUR PROGRAM */ 
-       fail_status = dmimgproject();
+       fail_status = dmimgproject2();
     
        /* CLOSE PARAMETER FILE AND RETURN TO THE OS */
        clclose();

@@ -1,4 +1,4 @@
-tool = dmimgproject
+tool = dmimgproject2
 
 binexedir = $(prefix)/binexe
 paramdir = $(prefix)/param
@@ -6,14 +6,14 @@ ahelpdir = $(prefix)/share/doc/xml
 
 binexe_PROGRAMS = $(tool)
 
-dmimgproject_SOURCES = dmimgproject.c t_dmimgproject.c
-dmimgproject_CPPFLAGS = $(CIAO_CFLAGS)
-dmimgproject_LDADD = $(CIAO_LIBS) 
-dmimgproject_LINK = $(CXX) -o $@ -Wl,-rpath,$(prefix)/lib -Wl,-rpath,$(prefix)/ots/lib 
+dmimgproject2_SOURCES = dmimgproject.c t_dmimgproject.c
+dmimgproject2_CPPFLAGS = $(CIAO_CFLAGS)
+dmimgproject2_LDADD = $(CIAO_LIBS) 
+dmimgproject2_LINK = $(CXX) -o $@ -Wl,-rpath,$(prefix)/lib -Wl,-rpath,$(prefix)/ots/lib 
 
 # problems with libstdc++ and cxcparam on Linux :(
 if LINUX
-dmimgproject_LDADD += -L$(prefix)/ots/lib -lstdc++
+dmimgproject2_LDADD += -L$(prefix)/ots/lib -lstdc++
 endif
 
 

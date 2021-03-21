@@ -416,7 +416,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 
 # make sure test script is exec
-TESTS = dmimgproject.t
+TESTS = dmimgproject2.t
 TESTS_ENVIRONMENT = \
 TESTIN=indata; \
 TESTSAV=save_data; \
@@ -609,9 +609,9 @@ recheck: all
 	        am__force_recheck=am--force-recheck \
 	        TEST_LOGS="$$log_list"; \
 	exit $$?
-dmimgproject.t.log: dmimgproject.t
-	@p='dmimgproject.t'; \
-	b='dmimgproject.t'; \
+dmimgproject2.t.log: dmimgproject2.t
+	@p='dmimgproject2.t'; \
+	b='dmimgproject2.t'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \

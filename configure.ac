@@ -1,4 +1,4 @@
-AC_INIT([dmimgproject], [4.13.0], [glotfeltyk@si.edu])
+AC_INIT([dmimgproject2], [4.13.0], [glotfeltyk@si.edu])
 AM_INIT_AUTOMAKE([foreign -Wall])
 AC_PROG_CC
 AM_PROG_CC_C_O
@@ -60,7 +60,7 @@ AC_CONFIG_FILES([
   test/Makefile
 ])
 
-AC_CONFIG_FILES([wrapper/dmimgproject:wrapper/wrapper.sh],[chmod +x wrapper/dmimgproject])
+AC_CONFIG_FILES([wrapper/dmimgproject2:wrapper/wrapper.sh],[chmod +x wrapper/dmimgproject2])
 
 # -- Go! -----------
 

@@ -1,5 +1,5 @@
 # make sure test script is exec
-TESTS = dmimgproject.t
+TESTS = dmimgproject2.t
 
 TESTS_ENVIRONMENT =\
 TESTIN=indata; \

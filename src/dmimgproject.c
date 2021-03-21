@@ -75,7 +75,7 @@ typedef struct {
 // Function prototypes
 
 Image* load_infile(char *infile);
-int dmimgproject();
+int dmimgproject2();
 int convert_coords( Image *image, double x_in, double y_in, 
         double *x_out, double *y_out);
 Grid *get_output_grid(Image *image, double rotang, double binsize);
@@ -399,12 +399,12 @@ int write_output(char *outfile, Image *image, Grid *grid, Stat *stats)
     /* All the header stuff */
     Header_Type *hdr;
     hdr = getHdr( image->block, hdrDM_FILE );
-    putHdr( outBlock, hdrDM_FILE, hdr, BASIC_STS, "dmimgproject" );
-    put_param_hist_info(outBlock, "dmimgproject", NULL, 0);
+    putHdr( outBlock, hdrDM_FILE, hdr, BASIC_STS, "dmimgproject2" );
+    put_param_hist_info(outBlock, "dmimgproject2", NULL, 0);
 
     if (dmBlockGetNo(outBlock) != 1) {
         dmBlock *primary = dmDatasetMoveToBlock(dmBlockGetDataset(outBlock), 1);
-        putHdr(primary, hdrDM_FILE, hdr, PRIMARY_STS, "dmimgproject");
+        putHdr(primary, hdrDM_FILE, hdr, PRIMARY_STS, "dmimgproject2");
     }
 
     // Write data
@@ -444,7 +444,7 @@ Parameters *get_parameters()
     pars->clobber = clgetb("clobber");
 
     if (pars->verbose >= 1){
-        printf("dmimgproject\n");
+        printf("dmimgproject2\n");
         printf("%15s = %-s\n", "infile", pars->infile);        
         printf("%15s = %-s\n", "outfile", pars->outfile);        
         printf("%15s = %g\n", "angle", pars->rotang);        
@@ -457,7 +457,7 @@ Parameters *get_parameters()
 }
 
 
-int dmimgproject()
+int dmimgproject2()
 {
     Parameters *pars;
     if (NULL == (pars = get_parameters())) {

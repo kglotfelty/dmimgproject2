@@ -1,1 +1,1 @@
-dist_bin_SCRIPTS = dmimgproject
+dist_bin_SCRIPTS = dmimgproject2

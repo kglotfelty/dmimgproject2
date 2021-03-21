@@ -101,15 +101,15 @@ DIST_COMMON = $(srcdir)/Makefile.am $(dist_ahelp_DATA) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__EXEEXT_1 = dmimgproject$(EXEEXT)
+am__EXEEXT_1 = dmimgproject2$(EXEEXT)
 am__installdirs = "$(DESTDIR)$(binexedir)" "$(DESTDIR)$(ahelpdir)" \
 	"$(DESTDIR)$(paramdir)"
 PROGRAMS = $(binexe_PROGRAMS)
-am_dmimgproject_OBJECTS = dmimgproject-dmimgproject.$(OBJEXT) \
-	dmimgproject-t_dmimgproject.$(OBJEXT)
-dmimgproject_OBJECTS = $(am_dmimgproject_OBJECTS)
+am_dmimgproject2_OBJECTS = dmimgproject2-dmimgproject.$(OBJEXT) \
+	dmimgproject2-t_dmimgproject.$(OBJEXT)
+dmimgproject2_OBJECTS = $(am_dmimgproject2_OBJECTS)
 am__DEPENDENCIES_1 =
-dmimgproject_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+dmimgproject2_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -126,8 +126,8 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/dmimgproject-dmimgproject.Po \
-	./$(DEPDIR)/dmimgproject-t_dmimgproject.Po
+am__depfiles_remade = ./$(DEPDIR)/dmimgproject2-dmimgproject.Po \
+	./$(DEPDIR)/dmimgproject2-t_dmimgproject.Po
 am__mv = mv -f
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -145,8 +145,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(dmimgproject_SOURCES)
-DIST_SOURCES = $(dmimgproject_SOURCES)
+SOURCES = $(dmimgproject2_SOURCES)
+DIST_SOURCES = $(dmimgproject2_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -295,14 +295,14 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-tool = dmimgproject
+tool = dmimgproject2
 binexedir = $(prefix)/binexe
 paramdir = $(prefix)/param
 ahelpdir = $(prefix)/share/doc/xml
-dmimgproject_SOURCES = dmimgproject.c t_dmimgproject.c
-dmimgproject_CPPFLAGS = $(CIAO_CFLAGS)
-dmimgproject_LDADD = $(CIAO_LIBS) $(am__append_1)
-dmimgproject_LINK = $(CXX) -o $@ -Wl,-rpath,$(prefix)/lib -Wl,-rpath,$(prefix)/ots/lib 
+dmimgproject2_SOURCES = dmimgproject.c t_dmimgproject.c
+dmimgproject2_CPPFLAGS = $(CIAO_CFLAGS)
+dmimgproject2_LDADD = $(CIAO_LIBS) $(am__append_1)
+dmimgproject2_LINK = $(CXX) -o $@ -Wl,-rpath,$(prefix)/lib -Wl,-rpath,$(prefix)/ots/lib 
 dist_param_DATA = $(tool).par
 dist_ahelp_DATA = $(tool).xml
 all: all-am
@@ -381,9 +381,9 @@ uninstall-binexePROGRAMS:
 clean-binexePROGRAMS:
 	-test -z "$(binexe_PROGRAMS)" || rm -f $(binexe_PROGRAMS)
 
-dmimgproject$(EXEEXT): $(dmimgproject_OBJECTS) $(dmimgproject_DEPENDENCIES) $(EXTRA_dmimgproject_DEPENDENCIES) 
-	@rm -f dmimgproject$(EXEEXT)
-	$(AM_V_GEN)$(dmimgproject_LINK) $(dmimgproject_OBJECTS) $(dmimgproject_LDADD) $(LIBS)
+dmimgproject2$(EXEEXT): $(dmimgproject2_OBJECTS) $(dmimgproject2_DEPENDENCIES) $(EXTRA_dmimgproject2_DEPENDENCIES) 
+	@rm -f dmimgproject2$(EXEEXT)
+	$(AM_V_GEN)$(dmimgproject2_LINK) $(dmimgproject2_OBJECTS) $(dmimgproject2_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -391,8 +391,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dmimgproject-dmimgproject.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dmimgproject-t_dmimgproject.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dmimgproject2-dmimgproject.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dmimgproject2-t_dmimgproject.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -414,33 +414,33 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
-dmimgproject-dmimgproject.o: dmimgproject.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dmimgproject_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dmimgproject-dmimgproject.o -MD -MP -MF $(DEPDIR)/dmimgproject-dmimgproject.Tpo -c -o dmimgproject-dmimgproject.o `test -f 'dmimgproject.c' || echo '$(srcdir)/'`dmimgproject.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/dmimgproject-dmimgproject.Tpo $(DEPDIR)/dmimgproject-dmimgproject.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='dmimgproject.c' object='dmimgproject-dmimgproject.o' libtool=no @AMDEPBACKSLASH@
+dmimgproject2-dmimgproject.o: dmimgproject.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dmimgproject2_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dmimgproject2-dmimgproject.o -MD -MP -MF $(DEPDIR)/dmimgproject2-dmimgproject.Tpo -c -o dmimgproject2-dmimgproject.o `test -f 'dmimgproject.c' || echo '$(srcdir)/'`dmimgproject.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/dmimgproject2-dmimgproject.Tpo $(DEPDIR)/dmimgproject2-dmimgproject.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='dmimgproject.c' object='dmimgproject2-dmimgproject.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dmimgproject_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dmimgproject-dmimgproject.o `test -f 'dmimgproject.c' || echo '$(srcdir)/'`dmimgproject.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dmimgproject2_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dmimgproject2-dmimgproject.o `test -f 'dmimgproject.c' || echo '$(srcdir)/'`dmimgproject.c
 
-dmimgproject-dmimgproject.obj: dmimgproject.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dmimgproject_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dmimgproject-dmimgproject.obj -MD -MP -MF $(DEPDIR)/dmimgproject-dmimgproject.Tpo -c -o dmimgproject-dmimgproject.obj `if test -f 'dmimgproject.c'; then $(CYGPATH_W) 'dmimgproject.c'; else $(CYGPATH_W) '$(srcdir)/dmimgproject.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/dmimgproject-dmimgproject.Tpo $(DEPDIR)/dmimgproject-dmimgproject.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='dmimgproject.c' object='dmimgproject-dmimgproject.obj' libtool=no @AMDEPBACKSLASH@
+dmimgproject2-dmimgproject.obj: dmimgproject.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dmimgproject2_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dmimgproject2-dmimgproject.obj -MD -MP -MF $(DEPDIR)/dmimgproject2-dmimgproject.Tpo -c -o dmimgproject2-dmimgproject.obj `if test -f 'dmimgproject.c'; then $(CYGPATH_W) 'dmimgproject.c'; else $(CYGPATH_W) '$(srcdir)/dmimgproject.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/dmimgproject2-dmimgproject.Tpo $(DEPDIR)/dmimgproject2-dmimgproject.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='dmimgproject.c' object='dmimgproject2-dmimgproject.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dmimgproject_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dmimgproject-dmimgproject.obj `if test -f 'dmimgproject.c'; then $(CYGPATH_W) 'dmimgproject.c'; else $(CYGPATH_W) '$(srcdir)/dmimgproject.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dmimgproject2_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dmimgproject2-dmimgproject.obj `if test -f 'dmimgproject.c'; then $(CYGPATH_W) 'dmimgproject.c'; else $(CYGPATH_W) '$(srcdir)/dmimgproject.c'; fi`
 
-dmimgproject-t_dmimgproject.o: t_dmimgproject.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dmimgproject_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dmimgproject-t_dmimgproject.o -MD -MP -MF $(DEPDIR)/dmimgproject-t_dmimgproject.Tpo -c -o dmimgproject-t_dmimgproject.o `test -f 't_dmimgproject.c' || echo '$(srcdir)/'`t_dmimgproject.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/dmimgproject-t_dmimgproject.Tpo $(DEPDIR)/dmimgproject-t_dmimgproject.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='t_dmimgproject.c' object='dmimgproject-t_dmimgproject.o' libtool=no @AMDEPBACKSLASH@
+dmimgproject2-t_dmimgproject.o: t_dmimgproject.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dmimgproject2_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dmimgproject2-t_dmimgproject.o -MD -MP -MF $(DEPDIR)/dmimgproject2-t_dmimgproject.Tpo -c -o dmimgproject2-t_dmimgproject.o `test -f 't_dmimgproject.c' || echo '$(srcdir)/'`t_dmimgproject.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/dmimgproject2-t_dmimgproject.Tpo $(DEPDIR)/dmimgproject2-t_dmimgproject.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='t_dmimgproject.c' object='dmimgproject2-t_dmimgproject.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dmimgproject_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dmimgproject-t_dmimgproject.o `test -f 't_dmimgproject.c' || echo '$(srcdir)/'`t_dmimgproject.c
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dmimgproject2_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dmimgproject2-t_dmimgproject.o `test -f 't_dmimgproject.c' || echo '$(srcdir)/'`t_dmimgproject.c
 
-dmimgproject-t_dmimgproject.obj: t_dmimgproject.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dmimgproject_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dmimgproject-t_dmimgproject.obj -MD -MP -MF $(DEPDIR)/dmimgproject-t_dmimgproject.Tpo -c -o dmimgproject-t_dmimgproject.obj `if test -f 't_dmimgproject.c'; then $(CYGPATH_W) 't_dmimgproject.c'; else $(CYGPATH_W) '$(srcdir)/t_dmimgproject.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/dmimgproject-t_dmimgproject.Tpo $(DEPDIR)/dmimgproject-t_dmimgproject.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='t_dmimgproject.c' object='dmimgproject-t_dmimgproject.obj' libtool=no @AMDEPBACKSLASH@
+dmimgproject2-t_dmimgproject.obj: t_dmimgproject.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dmimgproject2_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT dmimgproject2-t_dmimgproject.obj -MD -MP -MF $(DEPDIR)/dmimgproject2-t_dmimgproject.Tpo -c -o dmimgproject2-t_dmimgproject.obj `if test -f 't_dmimgproject.c'; then $(CYGPATH_W) 't_dmimgproject.c'; else $(CYGPATH_W) '$(srcdir)/t_dmimgproject.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/dmimgproject2-t_dmimgproject.Tpo $(DEPDIR)/dmimgproject2-t_dmimgproject.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='t_dmimgproject.c' object='dmimgproject2-t_dmimgproject.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dmimgproject_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dmimgproject-t_dmimgproject.obj `if test -f 't_dmimgproject.c'; then $(CYGPATH_W) 't_dmimgproject.c'; else $(CYGPATH_W) '$(srcdir)/t_dmimgproject.c'; fi`
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(dmimgproject2_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o dmimgproject2-t_dmimgproject.obj `if test -f 't_dmimgproject.c'; then $(CYGPATH_W) 't_dmimgproject.c'; else $(CYGPATH_W) '$(srcdir)/t_dmimgproject.c'; fi`
 install-dist_ahelpDATA: $(dist_ahelp_DATA)
 	@$(NORMAL_INSTALL)
 	@list='$(dist_ahelp_DATA)'; test -n "$(ahelpdir)" || list=; \
@@ -611,8 +611,8 @@ clean: clean-am
 clean-am: clean-binexePROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/dmimgproject-dmimgproject.Po
-	-rm -f ./$(DEPDIR)/dmimgproject-t_dmimgproject.Po
+		-rm -f ./$(DEPDIR)/dmimgproject2-dmimgproject.Po
+	-rm -f ./$(DEPDIR)/dmimgproject2-t_dmimgproject.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -660,8 +660,8 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/dmimgproject-dmimgproject.Po
-	-rm -f ./$(DEPDIR)/dmimgproject-t_dmimgproject.Po
+		-rm -f ./$(DEPDIR)/dmimgproject2-dmimgproject.Po
+	-rm -f ./$(DEPDIR)/dmimgproject2-t_dmimgproject.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
