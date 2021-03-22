@@ -1,34 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE cxchelptopics SYSTEM "CXCHelp.dtd">
 <cxchelptopics>
-<ENTRY context="tools" key="dmimgproject" refkeywords="dm image images project axis profile" seealsogroups="dmimgtools">
+<ENTRY context="tools" key="dmimgproject2" refkeywords="dm image images project axis profile statistics min max mean median sigma extreme mode" 
+  seealsogroups="dmimgtools">
 <SYNOPSIS>
-
-	Project image along axis
-   
+	Project image along rotated axis   
 </SYNOPSIS>
-<SYNTAX>
-<LINE>
-
-        dmimgproject infile outfile axis [clobber] [verbose]
-      
-</LINE>
-
-</SYNTAX>
 <DESC>
 <PARA>
 
-	'dmimgproject' projects data along one of the image axes. 
-	The sum of the pixels along either axis are output as is the
-	area and normalized integral.
-      
+	'dmimgproject2' projects data along the rotated X-axis.  To project 
+    along the Y-axis, use angle=90.  The projection includes several 
+    statistics computed from the pixels along the projected axis including:
+    sum, mean (average), count, median, min, max, sigma (standard deviation),
+    several quantiles (25,33,67,and 75%), and more.
+    The output table contains the X and Y coordinates for the X-axis 
+    in the rotated reference frame.      
 </PARA>
 <PARA>
+    The binsize is in units of logical (image) pixels.  The binsize
+    is adjusted internally for the rotation angle.  So for example, using
+    a binsize=1 with a rotation angle of 45 degrees will adjust the
+    bin width used internally to include a single pixel width in the
+    rotated coordinate system.
+</PARA>
+<PARA>
+    There is a second image extension added to the output, the "GRID_IMG",
+    which shows which pixels are included in each projection grid.
+</PARA>
 
+<PARA>
         Image pixels that fall outside and region subspace are
-        exlcuded as are any NaN or integer NULL values.  The input
-        image may be any data-type, but must be 2 dimensions.
-      
+        excluded as are any NaN or integer NULL values.  
 </PARA>
 
 </DESC>
@@ -36,30 +39,23 @@
 <QEXAMPLE>
 <SYNTAX>
 <LINE>
-
-	dmimgproject infile=img.fits outfile=project.fits axis=x
-     
+	dmimgproject2 infile=img.fits outfile=project.fits angle=0
 </LINE>
 
 </SYNTAX>
 <DESC>
 <PARA>
-
-     Project the data to the X-axis.  The output file will contain a
-     table of the X-axis column (grid) and the SUM_y(pixels@X_i).
-     
+     Project the data to the X-axis.  
 </PARA>
-
 </DESC>
-
 </QEXAMPLE>
 
 <QEXAMPLE>
 <SYNTAX>
 <LINE>
 
-	dmimgproject infile="exposure.fits[sky=circle(4096,4096,100)][opt full]" 
-	   outfile=project.fits axis=y
+	dmimgproject2 infile="exposure.fits[sky=circle(4096,4096,100)][opt full]" 
+	   outfile=project.fits angle=90
      
 </LINE>
 
@@ -68,9 +64,9 @@
 <PARA>
 
      Project the exposure image onto the Y-axis.  Pixels outside the 
-     circle are not included in the integral.  The area column give
-     the number of pixels included in the sum and the NORM column
-     gives the normalized area. 
+     circle are not included in the integral.  The "count" column 
+     will include the number of pixels in each grid.
+    
 </PARA>
 <PARA>
 
@@ -116,25 +112,37 @@
 </DESC>
 
 </PARAM>
-<PARAM def="x" min="x|y" name="axis" reqd="yes" type="string">
+<PARAM def="0" min="0" max="180" name="angle" reqd="yes" type="real">
 <SYNOPSIS>
 
-   Which data to project the data onto.
-    
+The rotation angle.    
 </SYNOPSIS>
 <DESC>
 <PARA>
-
-  The data can be projected onto either the X or Y axis.  For a 256(x)
-  by 512(y) image, with axis=x, there will be values for each X axis
-  value (256 of them) with the integral of the Y values in the
-  column.  For axis=y, there will be 1 value for each row (512 of
-  them) with the integral along the X-axis.
-
+    The X-axis rotated by this many degrees before the projection
+    is computed.  
 </PARA>
 </DESC>
 
 </PARAM>
+<PARAM name="binsize" def="1" min="0" type="real"> 
+<SYNOPSIS>
+The binsize of the projection bins, in logical|image pixels.
+</SYNOPSIS>
+<DESC>
+  <PARA>
+  The binsize of the projection histogram bins. This is measured in
+  logical|image pixels.  
+  </PARA>
+  <PARA>
+  Internally, the binsize is adjusted for the rotation angle.  For
+  example, if the rotation angle is 45 degrees, then binsize=1
+  is adjusted so that rotated grid maintains a width of 1 image pixel.
+  </PARA>
+</DESC>
+</PARAM>
+
+
 <PARAM def="no" name="clobber" type="boolean">
 <SYNOPSIS>
 
@@ -172,11 +180,11 @@
 </PARAMLIST>
 <BUGS><PARA>
 	See the
-        <HREF link="https://cxc.harvard.edu/ciao/bugs/dmimgproject.html">bugs page
+        <HREF link="https://cxc.harvard.edu/ciao/bugs/dmimgproject2.html">bugs page
 	for this tool</HREF>
         on the CIAO website for an up-to-date listing of known bugs.
       </PARA></BUGS>
-<LASTMODIFIED>December 2013</LASTMODIFIED>
+<LASTMODIFIED>March 2021</LASTMODIFIED>
 
 </ENTRY>
 
