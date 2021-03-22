@@ -60,6 +60,9 @@ typedef struct {
 
     double *xmid;       // x coordinate in rotated frame
     double *ymid;       // y coordinate in rotated frame    
+
+    long *grid_image;   // image showing which grid each pixel belong to.
+
 } Grid;
 
 typedef struct {
@@ -85,6 +88,11 @@ Stat *compute_stats(Grid *grid);
 int write_output(char *outfile, Image *image, Grid *grid, Stat *stats);
 int get_coordinates(Image *image, Grid *grid);
 
+
+// ---------
+
+
+#define NULL_GRID_VALUE -999
 
 // ----------------------
 // Functions
@@ -212,6 +220,12 @@ int setup_buffers(Image *image, Grid *grid)
         return(1);        
     }
     
+
+    if (NULL == (grid->grid_image = calloc(image->lAxes[0]*image->lAxes[1], sizeof(long)))) {
+        err_msg("ERROR: problem allocating memory");
+        return(1);        
+    }
+
     
     // Loop through image to figure out which grid bin each
     // pixel belongs to.  Allocate buffers to match number of 
@@ -220,12 +234,16 @@ int setup_buffers(Image *image, Grid *grid)
     int ii, jj;    
     for (jj=image->lAxes[1];jj--;) {
         double yterm = jj * grid->sin_angle;
+        long out_y = jj * image->lAxes[0];
 
         for (ii=image->lAxes[0];ii--;) {
+            long out_pix = ii+out_y;
+
             double pixval;
             pixval = get_image_value(image->data, image->dt, ii, jj,
                                      image->lAxes, image->mask);
             if (ds_dNAN(pixval)) {
+                grid->grid_image[out_pix] = NULL_GRID_VALUE;
                 continue;   // Skip pixel
             }
 
@@ -247,6 +265,8 @@ int setup_buffers(Image *image, Grid *grid)
 
             // calloc -> init to 0
             grid->buflen[grid_bin] += 1;
+
+            grid->grid_image[out_pix] = grid_bin;
             
         } // end for ii
     } // end for jj
@@ -340,7 +360,6 @@ int fill_buffers(Image *image, Grid *grid)
 Stat *compute_stats(Grid *grid)
 {
     // Compute array of statistics for each grid
-
     
     char *list_of_stats[] = { "min", "max", "mean", "count", "sum", "median", "mode", "mid", 
                               "sigma", "extreme", "range", "q25", "q33", 
@@ -402,6 +421,8 @@ int write_output(char *outfile, Image *image, Grid *grid, Stat *stats)
         return(1);
     }
 
+    dmDataset *outDs = dmBlockGetDataset(outBlock);
+
     char units[100];
     memset( units, 0, sizeof(char)*100);
     dmGetUnit( dmImageGetDataDescriptor( image->block ), units, 99 );
@@ -413,7 +434,7 @@ int write_output(char *outfile, Image *image, Grid *grid, Stat *stats)
     put_param_hist_info(outBlock, "dmimgproject2", NULL, 0);
 
     if (dmBlockGetNo(outBlock) != 1) {
-        dmBlock *primary = dmDatasetMoveToBlock(dmBlockGetDataset(outBlock), 1);
+        dmBlock *primary = dmDatasetMoveToBlock(outDs, 1);
         putHdr(primary, hdrDM_FILE, hdr, PRIMARY_STS, "dmimgproject2");
     }
 
@@ -433,8 +454,18 @@ int write_output(char *outfile, Image *image, Grid *grid, Stat *stats)
         dmSetScalars_d(col, stats[ii].values, 1, grid->num_bins);
         ii++;
     }
+    dmBlockClose(outBlock);
 
-    dmTableClose(outBlock);
+
+    // Save grid image (useful for debugging)
+    outBlock = dmDatasetCreateImage(outDs, "GRID_IMG", dmLONG,
+                    image->lAxes, 2);
+    dmDescriptor *outDesc = dmImageGetDataDescriptor(outBlock);
+    dmDescriptorSetNull_l(outDesc, NULL_GRID_VALUE);
+    putHdr( outBlock, hdrDM_FILE, hdr, BASIC_STS, "dmimgproject2" );
+    dmSetArray_l(outDesc, grid->grid_image, image->lAxes[0]*image->lAxes[1]);                    
+    dmBlockClose(outBlock);
+    dmDatasetClose(outDs);
 
     return(0);
 }
