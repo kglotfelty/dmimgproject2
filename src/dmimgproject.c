@@ -172,7 +172,10 @@ Grid *get_output_grid(Image *image, double rotang, double binsize)
 
     grid->cos_angle = cos(rotang*pi/180.0);
     grid->sin_angle = sin(rotang*pi/180.0);
+
     grid->binsize = binsize;
+    grid->binsize *= (fabs(grid->cos_angle)>fabs(grid->sin_angle)) ? fabs(grid->cos_angle) : fabs(grid->sin_angle);
+
 
     double dx = image->lAxes[0]/2.0;
     double dy = image->lAxes[1]/2.0;
@@ -195,10 +198,10 @@ Grid *get_output_grid(Image *image, double rotang, double binsize)
         rotx =  (xx-dx) * grid->cos_angle + (yy-dy) * grid->sin_angle + dx;
 
         if (rotx < grid->x_min) {
-            grid->x_min = rotx;
+            grid->x_min = floor(rotx);
         }
         if (rotx > grid->x_max) {
-            grid->x_max = rotx;
+            grid->x_max = ceil(rotx);
         }
 
     }   // end for ii
