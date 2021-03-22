@@ -455,8 +455,26 @@ int write_output(char *outfile, Image *image, Grid *grid, Stat *stats)
         putHdr(primary, hdrDM_FILE, hdr, PRIMARY_STS, "dmimgproject2");
     }
 
+
+    long *gridbin;
+    if (NULL == (gridbin = calloc(grid->num_bins,sizeof(long)))) {
+        err_msg("Error allocating memory");
+        return(1);
+    }
+    
+    int gg;
+    for (gg=grid->num_bins;gg--;) {
+        gridbin[gg] = gg;
+    }
+
+
     // Write data
     dmDescriptor *col;
+
+    col = dmColumnCreate(outBlock, "BIN", dmLONG, 0, "", "Bin index number");
+    dmSetScalars_l(col, gridbin, 1, grid->num_bins);
+    free(gridbin);
+
     col = dmColumnCreate(outBlock, "X", dmDOUBLE, 0, "pix", "Rotated X coordinate");
     dmSetScalars_d(col, grid->xmid, 1, grid->num_bins);
 
