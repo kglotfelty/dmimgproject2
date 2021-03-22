@@ -16,13 +16,13 @@
 
 
 # !!1
-# dmimgproject.t
-# test script for dmimgproject
+# dmimgproject2.t
+# test script for dmimgproject2
 
 
 # !!2
 # syntax:
-# dmimgproject.t [<testid> ... ]
+# dmimgproject2.t [<testid> ... ]
  
 
 
@@ -39,69 +39,18 @@ error_exit()
   exit 1
 }
 
-######################################################################
-# subroutine
-# keyfilter infile outfile
-# filters out CHECKSUM, Dataset, CREATOR, HISTORY, DATASUM, 
-#             ASCDSVER, HISTNUM, and DATE
-# To filter additional keywords, add s/KEYWORD/Dataset/g; for each.
 
-keyfilter()
-{
-  cat $1 | sed -e 's/CHECKSUM/Dataset/g;s/COMMENT/Dataset/g;
-  s/DATE/Dataset/g;s/CREATOR/Dataset/g;s/HISTORY/Dataset/g;
-  s/DATASUM/Dataset/g;s/ASCDSVER/Dataset/g;s/HISTNUM/Dataset/g' | \
-  grep -v Dataset > $2
-  zerotest $2
-}
-
-######################################################################
-# subroutine
-# find_tool <toolname>
-# checks that tool exists and is runnable
-
-find_tool()
-{
-  s1=`type $1`
-  s2=`echo $s1 | awk -F" " '{ print $3}'`
-  if test -x $s2 ; then
-    :
-  else
-    error_exit "tool $1 not found"
-  fi
-}
-
-######################################################################
-# subroutine
-# zerotest <file> 
-# Makes sure that file is not 0 length.
-# Use this to protect yourself against empty files  (which will 
-# 'diff' without error).  This can happen when the input file to
-# cat $infile | do_something >> $outfile
-# is missing.  This is used by keyfilter(), above.
-
-zerotest()
-{
- if test -s $1 ;
- then
-   :
- else
-   echo "ERROR: file $1 is of zero length" >> $LOGFILE
-   #  Indicate failure, but do not exit.
-   mismatch=0
- fi
-}
 
 
 ######################################################################
 # Initialization
 
 # !!3
-toolname="dmimgproject"
+toolname="dmimgproject2"
 
 # set up list of tests
 # !!4
-alltests="test_simple test_region test_nans"
+alltests="imageX imageY imageXbin2 imageXcropX imageXcropY gradientX gradientY gradient30 gradient45 gradient70 gradient135"
 
 # "short" test to run
 # !!5
@@ -169,16 +118,6 @@ else
 fi
 
 
-# check for tools
-# if a utility is used in the form "utility <args> > outfile", and 'utility'
-# cannot be run, 'outfile' will still be created.  If utility is used on 
-# both the output and reference files of a tool the resultant utility output 
-# files will both exist and be empty, and will pass a diff.
-
-find_tool dmlist
-find_tool dmimgcalc
-
-
 
 # announce ourselves
 echo ""
@@ -212,14 +151,29 @@ do
   # run the tool
   case ${testid} in
     # !!6
-    test_simple ) test1_string="dmimgproject infile=$INDIR/'acisf00650N002_cntr_img2.fits' outfile=$outfile axis=x clob+"
-            ;;
-
-    test_region ) test1_string="dmimgproject infile=$INDIR/'acisf00650N002_cntr_img2.fits[sky=circle(4109,4251,100)]' outfile=$outfile axis=y clob+"
-            ;;
-
-    test_nans ) test1_string="dmimgproject infile=$INDIR/'clip.fits' outfile=$outfile axis=x clob+"
-            ;;
+    
+    imageX) test1_string="dmimgproject2 $INDIR/image.fits outfile=$outfile angle=0 clob+ bin=1"
+    ;;
+    imageY) test1_string="dmimgproject2 $INDIR/image.fits outfile=$outfile angle=90 clob+ bin=1"
+    ;;
+    imageXbin2) test1_string="dmimgproject2 $INDIR/image.fits outfile=$outfile angle=0 clob+ bin=2"
+    ;;
+    imageXcropX) test1_string="dmimgproject2 $INDIR/image.fits'[sky=box(4104.5,4241.5,790,220,0)]' outfile=$outfile angle=0 clob+ bin=1"
+    ;;
+    imageXcropY) test1_string="dmimgproject2 $INDIR/image.fits'[sky=box(4104.5,4241.5,790,220,0)]' outfile=$outfile angle=0 clob+ bin=1"
+    ;;
+    gradientX) test1_string="dmimgproject2 $INDIR/gradient.fits outfile=$outfile angle=0 clob+ bin=1"
+    ;;
+    gradientY) test1_string="dmimgproject2 $INDIR/gradient.fits outfile=$outfile angle=90 clob+ bin=1"
+    ;;
+    gradient30) test1_string="dmimgproject2 $INDIR/gradient_30.fits outfile=$outfile angle=30 clob+ bin=1"
+    ;;
+    gradient45) test1_string="dmimgproject2 $INDIR/gradient_45.fits outfile=$outfile angle=45 clob+ bin=1"
+    ;;
+    gradient70) test1_string="dmimgproject2 $INDIR/gradient_70.fits outfile=$outfile angle=70 clob+ bin=1"
+    ;;
+    gradient135) test1_string="dmimgproject2 $INDIR/gradient_135.fits outfile=$outfile angle=135 clob+ bin=1"
+    ;;
 
   esac
 
@@ -234,76 +188,11 @@ do
   # Init per-test error flag
   mismatch=1
 
-  # if different tests need different kinds of comparisons, use a 
-  #  case ${testid} in...  here
-
-  ####################################################################
-  # FITS table    (duplicate for as many tables per test as needed)
-
-  # new output
-  # !!10
-#dmlist $outfile header,data,array > $OUTDIR/${testid}.dmp1  2>>$LOGFILE
-#keyfilter $OUTDIR/${testid}.dmp1 $OUTDIR/${testid}.dmp2  2>>$LOGFILE
-
-  # reference output
-  # !!11
-#dmlist $savfile header,data,array > $OUTDIR/${testid}.dmp1_std  2>>$LOGFILE
-#keyfilter $OUTDIR/${testid}.dmp1_std $OUTDIR/${testid}.dmp2_std \
-#          2>>$LOGFILE
-
-  # compare
-  # !!12
-#diff $OUTDIR/${testid}.dmp2 $OUTDIR/${testid}.dmp2_std > \
-#     /dev/null 2>>$LOGFILE
-
-
-dmdiff $outfile $savfile tol=$SAVDIR/tolerance > /dev/null 2>>$LOGFILE
-if  test $? -ne 0 ; then
-  echo "ERROR: MISMATCH in $outfile" >> $LOGFILE
-  mismatch=0
-fi
-
-
-  ####################################################################
-  # FITS image  (duplicate for as many images per test as needed)
-
-  # check image
-  # !!13
-#   dmimgcalc "$outfile[1]" "$savfile[1]" none tst verbose=0   2>>$LOGFILE
-#   if test $? -ne 0; then
-#     echo "ERROR: DATA MISMATCH in $outfile" >> $LOGFILE
-#     mismatch=0
-#   fi
-
-  #  Check the header of the image
-
-  # !!14
-  # dmlist $outfile header > $OUTDIR/${testid}.dmp1  2>>$LOGFILE
-  # keyfilter $OUTDIR/${testid}.dmp1 $OUTDIR/${testid}.dmp2  2>>$LOGFILE
-
-  # !!15
-  # dmlist $savfile header > $OUTDIR/${testid}.dmp1_std  2>>$LOGFILE
-  # keyfilter $OUTDIR/${testid}.dmp1_std $OUTDIR/${testid}.dmp2_std \
-  #            2>>$LOGFILE
-
-  # compare
-  # !!16
-#   dmdiff $outfile $savfile tol=$SAVDIR/tolerance verb=0 > \
-#         /dev/null 2>>$LOGFILE
-#   if  test $? -ne 0 ; then
-#     echo "ERROR: HEADER MISMATCH in $outfile" >> $LOGFILE
-#     mismatch=0
-#   fi
-
-  ######################################################################
-  # ascii files
-  # !!17
-  # diff $OUTDIR/${testid}.txt $OUTDIR/${testid}.txt_std > \
-  #       /dev/null 2>>$LOGFILE
-  # if  test $? -ne 0 ; then
-  #   echo "ERROR: TEXT MISMATCH in $OUTDIR/${testid}.txt" >> $LOGFILE
-  #   mismatch=0
-  # fi
+  dmdiff $outfile $savfile tol=$SAVDIR/tolerance > /dev/null 2>>$LOGFILE
+  if  test $? -ne 0 ; then
+    echo "ERROR: MISMATCH in $outfile" >> $LOGFILE
+    mismatch=0
+  fi
 
   ####################################################################
   # Did we get an error?
