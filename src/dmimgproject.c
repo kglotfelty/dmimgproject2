@@ -160,8 +160,10 @@ Grid *get_output_grid(Image *image, double rotang, double binsize)
         return(NULL);
     }
 
-    grid->cos_angle = cos(rotang*3.141592/180.0);
-    grid->sin_angle = sin(rotang*3.141592/180.0);
+    double pi = acos(-1);
+
+    grid->cos_angle = cos(rotang*pi/180.0);
+    grid->sin_angle = sin(rotang*pi/180.0);
     grid->binsize = binsize;
 
     grid->x_min = DBL_MAX;
@@ -218,6 +220,7 @@ int setup_buffers(Image *image, Grid *grid)
     int ii, jj;    
     for (jj=image->lAxes[1];jj--;) {
         double yterm = jj * grid->sin_angle;
+
         for (ii=image->lAxes[0];ii--;) {
             double pixval;
             pixval = get_image_value(image->data, image->dt, ii, jj,
@@ -306,6 +309,7 @@ int fill_buffers(Image *image, Grid *grid)
     int ii, jj;    
     for (jj=image->lAxes[1];jj--;) {
         double yterm = jj * grid->sin_angle;
+
         for (ii=image->lAxes[0];ii--;) {
             double pixval;
             pixval = get_image_value(image->data, image->dt, ii, jj,
@@ -373,6 +377,12 @@ Stat *compute_stats(Grid *grid)
         for (gg=0;gg<grid->num_bins;gg++) {
             double val;            
             val = func(grid->buffers[gg], grid->buflen[gg]);
+
+            // Special case -- if 0 counts, set to 0 not NaN
+            if ((strcmp(stats[ii].name, "count") == 0) && (ds_dNAN(val))) {
+                val = 0;
+            }
+
             stats[ii].values[gg] = val;            
         } // end for gg
         
@@ -409,15 +419,17 @@ int write_output(char *outfile, Image *image, Grid *grid, Stat *stats)
 
     // Write data
     dmDescriptor *col;
-    col = dmColumnCreate(outBlock, "X", dmDOUBLE, 0, "pix", "X coordinate ish");
+    col = dmColumnCreate(outBlock, "X", dmDOUBLE, 0, "pix", "Rotated X coordinate");
     dmSetScalars_d(col, grid->xmid, 1, grid->num_bins);
 
-    col = dmColumnCreate(outBlock, "Y", dmDOUBLE, 0, "pix", "Y coordinate ish");
+    col = dmColumnCreate(outBlock, "Y", dmDOUBLE, 0, "pix", "Rotated Y coordinate");
     dmSetScalars_d(col, grid->ymid, 1, grid->num_bins);
 
     int ii = 0;
     while (strlen(stats[ii].name)) {        
-        col = dmColumnCreate(outBlock, stats[ii].name, dmDOUBLE, 0, units, stats[ii].name );
+        dmDataType dt;
+        dt = strcmp(stats[ii].name, "count") ? dmDOUBLE : dmLONG;
+        col = dmColumnCreate(outBlock, stats[ii].name, dt, 0, units, "Statistic Computed" );
         dmSetScalars_d(col, stats[ii].values, 1, grid->num_bins);
         ii++;
     }
