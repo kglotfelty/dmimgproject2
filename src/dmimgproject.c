@@ -168,11 +168,14 @@ Grid *get_output_grid(Image *image, double rotang, double binsize)
         return(NULL);
     }
 
-    double pi = acos(-1);
+    double pi = acos(-1.0);
 
     grid->cos_angle = cos(rotang*pi/180.0);
     grid->sin_angle = sin(rotang*pi/180.0);
     grid->binsize = binsize;
+
+    double dx = image->lAxes[0]/2.0;
+    double dy = image->lAxes[1]/2.0;
 
     grid->x_min = DBL_MAX;
     grid->x_max = -DBL_MAX;
@@ -189,7 +192,7 @@ Grid *get_output_grid(Image *image, double rotang, double binsize)
         
         // I only need to know the X coord in rotated coord system
         double rotx;
-        rotx =  xx * grid->cos_angle + yy * grid->sin_angle;
+        rotx =  (xx-dx) * grid->cos_angle + (yy-dy) * grid->sin_angle + dx;
 
         if (rotx < grid->x_min) {
             grid->x_min = rotx;
@@ -226,6 +229,9 @@ int setup_buffers(Image *image, Grid *grid)
         return(1);        
     }
 
+
+    double dx = image->lAxes[0]/2.0;
+    double dy = image->lAxes[1]/2.0;
     
     // Loop through image to figure out which grid bin each
     // pixel belongs to.  Allocate buffers to match number of 
@@ -233,7 +239,7 @@ int setup_buffers(Image *image, Grid *grid)
     
     int ii, jj;    
     for (jj=image->lAxes[1];jj--;) {
-        double yterm = jj * grid->sin_angle;
+        double yterm = (jj - dy) * grid->sin_angle;
         long out_y = jj * image->lAxes[0];
 
         for (ii=image->lAxes[0];ii--;) {
@@ -248,7 +254,7 @@ int setup_buffers(Image *image, Grid *grid)
             }
 
             double rotx; 
-            rotx =  ii * grid->cos_angle + yterm;
+            rotx =  (ii-dx) * grid->cos_angle + yterm +dx;
 
             long grid_bin;
             grid_bin = floor((rotx - grid->x_min)/grid->binsize);  
@@ -293,18 +299,22 @@ int get_coordinates(Image *image, Grid *grid)
         return(1);
     }
     
+
+    double dx = image->lAxes[0]/2.0;
+    double dy = image->lAxes[1]/2.0;
+
     int kk;
     for (kk=0;kk<grid->num_bins;kk++) {
         // The idea is to rotate and then project onto the X-axis
         // So in the rotated system we want coords for y=0.
-        double xx = grid->x_min + kk*grid->binsize;
-        double yy = 0;
+        double xx = grid->x_min + kk*grid->binsize - dx;
+        double yy = 0-dy;
         
         double rotx, roty;
         
         // cos(-a) = cos(a); sin(-a) = -sin(a)
-        rotx = xx*grid->cos_angle - yy*grid->sin_angle;
-        roty = xx*grid->sin_angle + yy*grid->cos_angle;
+        rotx = xx*grid->cos_angle - yy*grid->sin_angle + dx;
+        roty = xx*grid->sin_angle + yy*grid->cos_angle + dy;
                 
         double px, py;
         convert_coords(image, rotx, roty, &px, &py);
@@ -326,9 +336,13 @@ int fill_buffers(Image *image, Grid *grid)
         return(1);        
     }
 
+
+    double dx = image->lAxes[0]/2.0;
+    double dy = image->lAxes[1]/2.0;
+
     int ii, jj;    
     for (jj=image->lAxes[1];jj--;) {
-        double yterm = jj * grid->sin_angle;
+        double yterm = (jj-dy) * grid->sin_angle;
 
         for (ii=image->lAxes[0];ii--;) {
             double pixval;
@@ -339,7 +353,7 @@ int fill_buffers(Image *image, Grid *grid)
             }
 
             double rotx; 
-            rotx =  ii * grid->cos_angle + yterm;
+            rotx =  (ii-dx) * grid->cos_angle + yterm +dx;
 
             long grid_bin;
             grid_bin = floor((rotx - grid->x_min)/grid->binsize);  
