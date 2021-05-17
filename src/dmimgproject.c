@@ -239,7 +239,8 @@ Grid *get_output_grid(Image *image, double rotang, double binsize)
         return(NULL);
     }
 
-    for (int gg=grid->num_bins;gg--;) {
+    int gg;
+    for (gg=grid->num_bins;gg--;) {
         grid->gridbin[gg] = gg;
     }
 
