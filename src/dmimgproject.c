@@ -30,17 +30,6 @@
 #include <dmimgio.h>
 
 
-/* Hold info for an input image */
-typedef struct {
-    void *data;        // pixel values
-    dmDataType dt;     // pixel datatype
-    long *lAxes;       // axis lenghts
-    short *mask;        // mask of valid pixels
-    dmDescriptor *xdesc;  // X (or sky) coordinate descriptor
-    dmDescriptor *ydesc;  // Y coordinate descriptor
-    dmBlock *block; // The block image came from
-} Image;
-
 typedef struct {
     char name[30];     // Name of stat, also used for column name
     double *values;    // Output values per bin
@@ -105,40 +94,6 @@ int get_coordinates(Image *image, Grid *grid);
 
 // ----------------------
 // Functions
-
-Image* load_infile(char *infile)
-{
-    // Load image
-
-    Image *image;
-    if (NULL == (image = calloc(1,sizeof(Image)))) {
-        err_msg("ERROR: Cannot allocate memory for image\n");
-        return(NULL);
-    }
-
-    if (NULL == (image->block = dmImageOpen(infile))) {
-        err_msg("ERROR: Cannot load infile '%s'\n",infile);
-        return(NULL);
-    }
-
-    // dmimgio
-    regRegion *dss = NULL;
-    long null_value;
-    short has_null;
-    image->dt = get_image_data(image->block, &(image->data),
-                    &(image->lAxes), &dss, &null_value, &has_null);
-    get_image_wcs(image->block, &(image->xdesc), &(image->ydesc));
-    image->mask = get_image_mask(image->block, image->data,
-                    image->dt, image->lAxes, dss, null_value,
-                    has_null, image->xdesc, image->ydesc);
-
-    if (dss != NULL){
-        regFree(dss);
-        dss=NULL;
-    }
-
-    return(image);
-}
 
 
 int convert_coords( Image *image, double x_in, double y_in,
@@ -280,8 +235,7 @@ int setup_buffers(Image *image, Grid *grid)
             long out_pix = ii+out_y;
 
             double pixval;
-            pixval = get_image_value(image->data, image->dt, ii, jj,
-                                     image->lAxes, image->mask);
+            pixval = get_image_value(image, ii, jj);
             if (ds_dNAN(pixval)) {
                 grid->grid_image[out_pix] = NULL_GRID_VALUE;
                 continue;   // Skip pixel
@@ -373,8 +327,7 @@ int fill_buffers(Image *image, Grid *grid)
 
         for (ii=image->lAxes[0];ii--;) {
             double pixval;
-            pixval = get_image_value(image->data, image->dt, ii, jj,
-                                     image->lAxes, image->mask);
+            pixval = get_image_value(image, ii, jj);
             if (ds_dNAN(pixval)) {
                 continue;   // Skip pixel
             }
@@ -554,7 +507,7 @@ int dmimgproject2()
 
 
     Image *image;
-    if (NULL == (image = load_infile(pars->infile))) {
+    if (NULL == (image = load_image(pars->infile))) {
         return(-1);
     }
 
